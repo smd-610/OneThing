@@ -58,7 +58,7 @@ export function YearView() {
   }, [loadYearTodos]);
 
   // Build weeks grid
-  const startDate = yearStart.startOf("week").add(1, "day");
+  const startDate = yearStart.startOf("week");
   const weeks: dayjs.Dayjs[][] = [];
   let cursor = startDate;
   while (cursor.isBefore(yearEnd.add(1, "week"))) {

@@ -26,6 +26,15 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   isLoading: false,
 
   loadTodos: async (dueDate?: string) => {
+    if (pendingToggles.size > 0) {
+      await new Promise<void>((resolve) => {
+        const check = () => {
+          if (pendingToggles.size === 0) resolve();
+          else setTimeout(check, 10);
+        };
+        check();
+      });
+    }
     set({ isLoading: true });
     try {
       const todos = await fetchTodos(dueDate);
@@ -47,15 +56,15 @@ export const useTodoStore = create<TodoState>((set, get) => ({
 
   toggleTodo: async (id: string) => {
     if (pendingToggles.has(id)) return;
-    const todo = get().todos.find((t) => t.id === id);
-    if (!todo) return;
-    const completed = !todo.completed;
     pendingToggles.add(id);
     try {
-      await updateTodo(id, { completed });
+      const currentTodo = get().todos.find((t) => t.id === id);
+      if (!currentTodo) return;
+      const newCompleted = !currentTodo.completed;
+      await updateTodo(id, { completed: newCompleted });
       set((state) => ({
         todos: state.todos.map((t) =>
-          t.id === id ? { ...t, completed, updatedAt: new Date().toISOString() } : t
+          t.id === id ? { ...t, completed: newCompleted, updatedAt: new Date().toISOString() } : t
         ),
       }));
     } catch (error) {

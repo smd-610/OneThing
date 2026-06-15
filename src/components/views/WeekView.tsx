@@ -13,7 +13,7 @@ export function WeekView() {
   const { selectedDate, setSelectedDate, setViewMode } = useUiStore();
   const [weekTodos, setWeekTodos] = useState<Todo[]>([]);
 
-  const weekStart = dayjs(selectedDate).startOf("week").add(1, "day");
+  const weekStart = dayjs(selectedDate).startOf("week");
   const weekDates = Array.from({ length: 7 }, (_, i) =>
     weekStart.add(i, "day")
   );
