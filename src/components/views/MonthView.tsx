@@ -20,8 +20,8 @@ export function MonthView() {
   const [monthTodos, setMonthTodos] = useState<Todo[]>([]);
 
   const currentMonth = dayjs(selectedDate).startOf("month");
-  const calendarStart = currentMonth.startOf("week").add(1, "day");
-  const calendarEnd = currentMonth.endOf("month").endOf("week").add(1, "day");
+  const calendarStart = currentMonth.startOf("week");
+  const calendarEnd = currentMonth.endOf("month").endOf("week");
 
   const loadMonthTodos = useCallback(async () => {
     const start = calendarStart.format("YYYY-MM-DD");
