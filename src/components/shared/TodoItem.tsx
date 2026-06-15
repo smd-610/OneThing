@@ -60,11 +60,14 @@ export function TodoItem({ todo }: TodoItemProps) {
     setIsEditing(false);
   };
 
-  const dueDateDisplay = todo.dueDate
-    ? dayjs(todo.dueDate).isSame(dayjs(), "day")
+  const dueDateObj = todo.dueDate ? dayjs(todo.dueDate) : null;
+  const hasTime = todo.dueDate?.includes("T") ?? false;
+  const dueDateLabel = dueDateObj
+    ? dueDateObj.isSame(dayjs(), "day")
       ? "今天"
-      : dayjs(todo.dueDate).fromNow()
+      : dueDateObj.fromNow()
     : null;
+  const dueTimeLabel = hasTime && dueDateObj ? dueDateObj.format("HH:mm") : null;
 
   return (
     <div
@@ -119,8 +122,11 @@ export function TodoItem({ todo }: TodoItemProps) {
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        {dueDateDisplay && (
-          <span className="text-xs text-muted-foreground">{dueDateDisplay}</span>
+        {dueTimeLabel && (
+          <span className="text-xs font-medium text-primary tabular-nums">{dueTimeLabel}</span>
+        )}
+        {dueDateLabel && (
+          <span className="text-xs text-muted-foreground">{dueDateLabel}</span>
         )}
         <PriorityBadge priority={todo.priority} />
         <button

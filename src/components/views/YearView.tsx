@@ -45,10 +45,11 @@ export function YearView() {
     const map = new Map<string, { count: number; completed: number }>();
     for (const todo of todos) {
       if (!todo.dueDate) continue;
-      const existing = map.get(todo.dueDate) ?? { count: 0, completed: 0 };
+      const dateKey = dayjs(todo.dueDate).format("YYYY-MM-DD");
+      const existing = map.get(dateKey) ?? { count: 0, completed: 0 };
       existing.count++;
       if (todo.completed) existing.completed++;
-      map.set(todo.dueDate, existing);
+      map.set(dateKey, existing);
     }
     setYearData(map);
   }, [year]);

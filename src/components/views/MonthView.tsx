@@ -42,7 +42,7 @@ export function MonthView() {
   }
 
   const getTodosForDate = (date: dayjs.Dayjs) =>
-    monthTodos.filter((t) => t.dueDate === date.format("YYYY-MM-DD"));
+    monthTodos.filter((t) => t.dueDate && dayjs(t.dueDate).format("YYYY-MM-DD") === date.format("YYYY-MM-DD"));
 
   const navigateMonth = (direction: -1 | 1) => {
     setSelectedDate(

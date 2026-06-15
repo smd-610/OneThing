@@ -50,7 +50,7 @@ export async function fetchTodos(dueDate?: string): Promise<Todo[]> {
   let rows: Record<string, unknown>[];
   if (dueDate) {
     rows = await database.select(
-      "SELECT * FROM todos WHERE due_date = $1 ORDER BY sort_order, created_at DESC",
+      "SELECT * FROM todos WHERE substr(due_date, 1, 10) = $1 ORDER BY sort_order, created_at DESC",
       [dueDate]
     );
   } else {
@@ -67,7 +67,7 @@ export async function fetchTodosByDateRange(
 ): Promise<Todo[]> {
   const database = await getDb();
   const rows: Record<string, unknown>[] = await database.select(
-    "SELECT * FROM todos WHERE due_date >= $1 AND due_date <= $2 ORDER BY sort_order",
+    "SELECT * FROM todos WHERE substr(due_date, 1, 10) >= $1 AND substr(due_date, 1, 10) <= $2 ORDER BY sort_order",
     [startDate, endDate]
   );
   return rows.map(rowToTodo);

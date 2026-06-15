@@ -30,7 +30,7 @@ export function WeekView() {
   }, [loadWeekTodos]);
 
   const getTodosForDate = (date: dayjs.Dayjs) =>
-    weekTodos.filter((t) => t.dueDate === date.format("YYYY-MM-DD"));
+    weekTodos.filter((t) => t.dueDate && dayjs(t.dueDate).format("YYYY-MM-DD") === date.format("YYYY-MM-DD"));
 
   const navigateWeek = (direction: -1 | 1) => {
     setSelectedDate(

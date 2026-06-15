@@ -37,24 +37,34 @@ export function TodoForm({
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("medium");
   const [dueDate, setDueDate] = useState(dayjs().format("YYYY-MM-DD"));
+  const [dueTime, setDueTime] = useState("");
 
   useEffect(() => {
     if (open) {
       setTitle(todo?.title ?? "");
       setDescription(todo?.description ?? "");
       setPriority(todo?.priority ?? "medium");
-      setDueDate(todo?.dueDate ?? defaultDate ?? dayjs().format("YYYY-MM-DD"));
+      if (todo?.dueDate) {
+        const parsed = dayjs(todo.dueDate);
+        setDueDate(parsed.format("YYYY-MM-DD"));
+        setDueTime(todo.dueDate.includes("T") ? parsed.format("HH:mm") : "");
+      } else {
+        setDueDate(defaultDate ?? dayjs().format("YYYY-MM-DD"));
+        setDueTime("");
+      }
     }
   }, [open, todo, defaultDate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    onSubmit({ title: title.trim(), description, priority, dueDate });
+    const mergedDueDate = dueTime ? `${dueDate}T${dueTime}` : dueDate;
+    onSubmit({ title: title.trim(), description, priority, dueDate: mergedDueDate });
     setTitle("");
     setDescription("");
     setPriority("medium");
     setDueDate(defaultDate ?? dayjs().format("YYYY-MM-DD"));
+    setDueTime("");
     onOpenChange(false);
   };
 
@@ -102,11 +112,19 @@ export function TodoForm({
               </button>
             ))}
           </div>
-          <div>
+          <div className="flex gap-2">
             <Input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              className="flex-1"
+            />
+            <Input
+              type="time"
+              value={dueTime}
+              onChange={(e) => setDueTime(e.target.value)}
+              className="w-32"
+              placeholder="时间（可选）"
             />
           </div>
           <DialogFooter>
