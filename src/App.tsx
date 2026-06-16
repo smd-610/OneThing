@@ -4,13 +4,16 @@ import { DayView } from "@/components/views/DayView";
 import { WeekView } from "@/components/views/WeekView";
 import { MonthView } from "@/components/views/MonthView";
 import { YearView } from "@/components/views/YearView";
+import { SettingsView } from "@/components/views/SettingsView";
 import { useUiStore } from "@/stores/ui-store";
+import { startReminderScheduler } from "@/lib/reminder-scheduler";
 
 function App() {
   const { viewMode, initTheme } = useUiStore();
 
   useEffect(() => {
     initTheme();
+    startReminderScheduler();
   }, [initTheme]);
 
   const renderView = () => {
@@ -23,6 +26,8 @@ function App() {
         return <MonthView />;
       case "year":
         return <YearView />;
+      case "settings":
+        return <SettingsView />;
     }
   };
 

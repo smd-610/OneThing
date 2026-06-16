@@ -5,6 +5,7 @@ import {
   CalendarRange,
   CalendarClock,
   Calendar,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui-store";
@@ -16,6 +17,7 @@ const navItems: { mode: ViewMode; label: string; icon: typeof Sun }[] = [
   { mode: "week", label: "本周", icon: CalendarRange },
   { mode: "month", label: "本月", icon: CalendarClock },
   { mode: "year", label: "本年", icon: Calendar },
+  { mode: "settings", label: "设置", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -24,7 +26,9 @@ export function Sidebar() {
 
   const handleNavClick = (mode: ViewMode) => {
     setViewMode(mode);
-    setSelectedDate(dayjs().format("YYYY-MM-DD"));
+    if (mode !== "settings") {
+      setSelectedDate(dayjs().format("YYYY-MM-DD"));
+    }
   };
 
   return (

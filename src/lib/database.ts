@@ -14,6 +14,18 @@ CREATE TABLE IF NOT EXISTS todos (
   updated_at  TEXT DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_todos_due_date ON todos(due_date);
+
+CREATE TABLE IF NOT EXISTS settings (
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS sent_reminders (
+  todo_id     TEXT NOT NULL,
+  remind_type TEXT NOT NULL,
+  sent_at     TEXT NOT NULL,
+  PRIMARY KEY (todo_id, remind_type)
+);
 `;
 
 let db: Database | null = null;
@@ -151,6 +163,7 @@ export async function updateTodo(
 export async function deleteTodo(id: string): Promise<void> {
   const database = await getDb();
   await database.execute("DELETE FROM todos WHERE id = $1", [id]);
+  await database.execute("DELETE FROM sent_reminders WHERE todo_id = $1", [id]);
 }
 
 export async function reorderTodos(ids: string[]): Promise<void> {
@@ -169,4 +182,68 @@ export async function reorderTodos(ids: string[]): Promise<void> {
     await database.execute("ROLLBACK");
     throw e;
   }
+}
+
+// ---- Settings ----
+
+export async function getSetting(key: string): Promise<string | null> {
+  const database = await getDb();
+  const rows: Record<string, unknown>[] = await database.select(
+    "SELECT value FROM settings WHERE key = $1",
+    [key]
+  );
+  return rows.length > 0 ? (rows[0].value as string) : null;
+}
+
+export async function getAllSettings(): Promise<Record<string, string>> {
+  const database = await getDb();
+  const rows: Record<string, unknown>[] = await database.select(
+    "SELECT key, value FROM settings"
+  );
+  const result: Record<string, string> = {};
+  for (const row of rows) {
+    result[row.key as string] = row.value as string;
+  }
+  return result;
+}
+
+export async function setSetting(key: string, value: string): Promise<void> {
+  const database = await getDb();
+  await database.execute(
+    "INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT(key) DO UPDATE SET value = $2",
+    [key, value]
+  );
+}
+
+// ---- Sent Reminders ----
+
+export async function isReminderSent(
+  todoId: string,
+  remindType: string
+): Promise<boolean> {
+  const database = await getDb();
+  const rows: Record<string, unknown>[] = await database.select(
+    "SELECT 1 FROM sent_reminders WHERE todo_id = $1 AND remind_type = $2",
+    [todoId, remindType]
+  );
+  return rows.length > 0;
+}
+
+export async function markReminderSent(
+  todoId: string,
+  remindType: string
+): Promise<void> {
+  const database = await getDb();
+  await database.execute(
+    "INSERT OR IGNORE INTO sent_reminders (todo_id, remind_type, sent_at) VALUES ($1, $2, $3)",
+    [todoId, remindType, new Date().toISOString()]
+  );
+}
+
+export async function fetchIncompleteTodosWithDueDate(): Promise<Todo[]> {
+  const database = await getDb();
+  const rows: Record<string, unknown>[] = await database.select(
+    "SELECT * FROM todos WHERE completed = 0 AND due_date IS NOT NULL AND due_date LIKE '%T%'"
+  );
+  return rows.map(rowToTodo);
 }
