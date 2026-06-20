@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getAllSettings, setSetting } from "@/lib/database";
-import { Mail, Send, CheckCircle, XCircle } from "lucide-react";
+import { Mail, Send, CheckCircle, XCircle, Sparkles } from "lucide-react";
 
 const SETTING_KEYS = [
   "smtp_host",
@@ -13,6 +13,9 @@ const SETTING_KEYS = [
   "smtp_pass",
   "email_to",
   "reminders_enabled",
+  "ai_api_key",
+  "ai_base_url",
+  "ai_model",
 ] as const;
 
 const LABELS: Record<string, string> = {
@@ -22,6 +25,9 @@ const LABELS: Record<string, string> = {
   smtp_pass: "密码 / 应用专用密码",
   email_to: "收件邮箱",
   reminders_enabled: "启用提醒",
+  ai_api_key: "API Key",
+  ai_base_url: "接口地址",
+  ai_model: "模型名称",
 };
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -30,6 +36,9 @@ const PLACEHOLDERS: Record<string, string> = {
   smtp_user: "your-email@qq.com",
   smtp_pass: "授权码",
   email_to: "your-email@qq.com",
+  ai_api_key: "sk-...",
+  ai_base_url: "https://api.deepseek.com/v1",
+  ai_model: "deepseek-chat",
 };
 
 export function SettingsView() {
@@ -161,6 +170,32 @@ export function SettingsView() {
                 placeholder={PLACEHOLDERS.email_to}
               />
             </div>
+          </div>
+
+          {/* AI Configuration */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              AI 智能提取配置
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              支持 OpenAI、DeepSeek、Qwen、Kimi 等兼容接口
+            </p>
+            {(["ai_base_url", "ai_model", "ai_api_key"] as const).map(
+              (key) => (
+                <div key={key}>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    {LABELS[key]}
+                  </label>
+                  <Input
+                    type={key === "ai_api_key" ? "password" : "text"}
+                    value={settings[key] ?? ""}
+                    onChange={(e) => handleChange(key, e.target.value)}
+                    placeholder={PLACEHOLDERS[key]}
+                  />
+                </div>
+              )
+            )}
           </div>
 
           {/* Actions */}

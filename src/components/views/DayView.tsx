@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TodoList } from "@/components/shared/TodoList";
 import { TodoForm } from "@/components/shared/TodoForm";
+import { SmartAddDialog } from "@/components/shared/SmartAddDialog";
 import { CompletionBar } from "@/components/shared/CompletionBar";
 import { useTodoStore } from "@/stores/todo-store";
 import { useUiStore } from "@/stores/ui-store";
@@ -16,6 +17,7 @@ export function DayView() {
   const { selectedDate, setSelectedDate } = useUiStore();
   const [quickAddValue, setQuickAddValue] = useState("");
   const [formOpen, setFormOpen] = useState(false);
+  const [smartAddOpen, setSmartAddOpen] = useState(false);
 
   const loadDayTodos = useCallback(async () => {
     await loadTodos(selectedDate);
@@ -75,10 +77,16 @@ export function DayView() {
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
-          <Button onClick={() => setFormOpen(true)} size="sm">
-            <Plus className="h-4 w-4" />
-            添加任务
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setSmartAddOpen(true)}>
+              <Sparkles className="h-4 w-4" />
+              智能添加
+            </Button>
+            <Button onClick={() => setFormOpen(true)} size="sm">
+              <Plus className="h-4 w-4" />
+              添加任务
+            </Button>
+          </div>
         </div>
 
         {todos.length > 0 && (
@@ -114,6 +122,13 @@ export function DayView() {
         onOpenChange={setFormOpen}
         defaultDate={selectedDate}
         onSubmit={handleFormSubmit}
+      />
+
+      <SmartAddDialog
+        open={smartAddOpen}
+        onOpenChange={setSmartAddOpen}
+        defaultDate={selectedDate}
+        onDone={loadDayTodos}
       />
     </div>
   );
